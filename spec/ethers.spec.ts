@@ -1,57 +1,47 @@
 import 'jasmine';
-import { SolidoContract, SolidoProvider, SolidoModule, IMethodOrEventCall, Read, Write, EventFilterOptions, GetEvents } from '@decent-bet/solido';
-import { Web3Plugin, Web3Settings, Web3SolidoTopic } from '../src';
-const Web3 = require('web3');
-const CocoTokenImport = require('./CocoToken.json')
+import { CementoContract, CementoProvider, CementoModule, IMethodOrEventCall, Read, Write, EventFilterOptions, GetEvents } from 'cemento-paid';
+import { EthersPlugin, EthersSettings, EthersCementoTopic } from '../src';
+const ethers = require('ethers');
+const CocoTokenImport = require('./CocoToken.json');
 
-describe('Web3Provider', () => {
-    describe('#Web3Plugin', () => {
-        let web3;
+describe('EthersProvider', () => {
+    describe('#EthersPlugin', () => {
         let tokenContract;
         beforeEach(async () => {
             const privateKey = '';
             const network = 'development';
             const defaultAccount = '0xae5ba923447cb11f2a94b66dff878b0d7cfdd13c';
             const node = 'http://localhost:8545';
-
-            web3 = {
-                eth: {
-                    Contract: function() {},
-                    accounts: {
-                        wallet: {
-                            add: jasmine.createSpy()
-                        },
-                        signTransaction: jasmine.createSpy('signTransaction')
-                    }
-                }
-            } as any;
-            // Create Solido Module
-            const module = new SolidoModule([
-                {
-                    name: 'CocoToken',
-                    import: {
-                        address: {
-                            development: CocoTokenImport.networks['1555175807639'].address,
-                        },
-                        raw: CocoTokenImport
-                    },
-                    enableDynamicStubs: true,
-                    provider: Web3Plugin
-                }
-            ]);
+            // Create cemento Module
+            const module = new CementoModule({
+                'Paid': {
+                    connections: [{
+                        provider: EthersPlugin,
+                        defaultAccount,
+                        chainId: '4',
+                        name: 'rinkiby'
+                    }],
+                    contracts: [{
+                        name: 'CocoToken',
+                        abi: CocoTokenImport.abi,
+                        address: '0xa729a3a5f65C9aF4934bfd0F4dfCE3898cE0ddA3',
+                        connectionName: ['rinkiby'],
+                    }],
+                },
+            });
 
             const contracts = module.bindContracts();
-            const token = contracts.getDynamicContract('CocoToken');
+            const token = contracts[0] as CementoContract & CementoProvider;
             expect(contracts).not.toBe(null);
             expect(token).not.toBe(null);
 
             tokenContract = token;
 
-            token.onReady<Web3Settings>({
+            token.onReady<EthersSettings>({
                 defaultAccount,
                 privateKey,
                 network,
-                web3
+                provider: ethers.providers.JsonRpcProvider(node),
             });
             
 
@@ -59,7 +49,7 @@ describe('Web3Provider', () => {
         });
 
         it('should generate topics for Connex', async () => {
-            const topics = new Web3SolidoTopic();
+            const topics = new EthersCementoTopic();
 
             const seq = topics
                 .topic('0xc')

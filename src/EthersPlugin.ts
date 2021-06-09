@@ -1,13 +1,9 @@
 import { Observable, Subject } from 'rxjs';
 import { pluck } from 'rxjs/operators';
 import { ethers, Contract, ContractFunction } from 'ethers';
-// eslint-disable-next-line spaced-comment
-import { IMethodOrEventCall, EventFilter, SolidoProviderType, ProviderInstance } from '@decent-bet/solido';
+import { IMethodOrEventCall, EventFilter, CementoProviderType, ProviderInstance, CementoProvider, CementoContract, CementoSigner } from 'cemento-paid';
 import { EthersSigner } from './EthersSigner';
 import { EthersSettings } from './EthersSettings';
-import { SolidoProvider } from '@decent-bet/solido';
-import { SolidoContract, SolidoSigner } from '@decent-bet/solido';
-import { SolidoTopic } from '@decent-bet/solido';
 import { UncheckedJsonRpcSigner } from './UncheckedSigner';
 import { JsonRpcProvider } from 'ethers/providers';
 import { Wallet } from 'xdvplatform-wallet'
@@ -45,10 +41,10 @@ export interface ReactiveBindings {
     subscribe(name: string, callback: () => {}): void;
 }
 /**
- * EthersPlugin provider for Solido
+ * EthersPlugin provider for Cemento
  */
-export class EthersPlugin extends SolidoProvider
-    implements SolidoContract, ReactiveBindings {
+export class EthersPlugin extends CementoProvider implements CementoContract, ReactiveBindings {
+    chainId: string;
     private provider: ethers.providers.Provider;
     private wallet: ethers.Wallet;
     public network: string;
@@ -64,8 +60,8 @@ export class EthersPlugin extends SolidoProvider
     };
     private _subscriber: Subject<object>;
     public walletProvider: Wallet;
-    public getProviderType(): SolidoProviderType {
-        return SolidoProviderType.Ethers;
+    public getProviderType(): CementoProviderType {
+        return CementoProviderType.Ethers;
     }
 
     describe() {
@@ -79,11 +75,11 @@ export class EthersPlugin extends SolidoProvider
         this.network = network;
         this.defaultAccount = defaultAccount;
         this.instance = new ethers.Contract(
-            this.contractImport.address[network],
-            this.contractImport.raw.abi as any,
+            this.bindContract.address,
+            this.abi as any,
             provider
         );
-        this.address = this.contractImport.address[network];
+        this.address = this.bindContract.address;
 
         if (walletProvider instanceof Wallet) {
             this.privateKey = walletProvider.getES256K().getPrivate('hex');
@@ -91,8 +87,8 @@ export class EthersPlugin extends SolidoProvider
         if (privateKey) {
             this.wallet = new ethers.Wallet(privateKey, provider);
             this.instance = new ethers.Contract(
-                this.contractImport.address[network],
-                this.contractImport.raw.abi as any,
+                this.bindContract.address,
+                this.abi as any,
                 this.wallet,
             );
         }
@@ -114,25 +110,25 @@ export class EthersPlugin extends SolidoProvider
         }
         if (this.provider && this.network && this.defaultAccount) {
             this.instance = new ethers.Contract(
-                this.contractImport.address[this.network],
-                this.contractImport.raw.abi as any,
+                this.bindContract.address,
+                this.abi as any,
                 this.provider
             )
-            this.address = this.contractImport.address[this.network];
+            this.address = this.bindContract.address;
             if (this.privateKey === 'metamask' || this.privateKey === 'provider') {
                 const randomwallet = ethers.Wallet.createRandom();
                 this.wallet = randomwallet.connect(this.provider);
                 const signer = new UncheckedJsonRpcSigner((this.provider as JsonRpcProvider).getSigner());
                 this.instance = new ethers.Contract(
-                    this.contractImport.address[this.network],
-                    this.contractImport.raw.abi as any,
+                    this.bindContract.address,
+                    this.abi as any,
                     signer,
                 );
             } else if (this.privateKey) {
                 this.wallet = new ethers.Wallet(this.privateKey, this.provider);
                 this.instance = new ethers.Contract(
-                    this.contractImport.address[this.network],
-                    this.contractImport.raw.abi as any,
+                    this.bindContract.address,
+                    this.abi as any,
                     this.wallet,
                 );
             }
@@ -198,7 +194,7 @@ export class EthersPlugin extends SolidoProvider
         return cancellable;
     }
 
-    async prepareSigning(methodCall: any, options: IMethodOrEventCall, args: any[]): Promise<SolidoSigner> {
+    async prepareSigning(methodCall: any, options: IMethodOrEventCall, args: any[]): Promise<CementoSigner> {
         let gas = options.gas;
 
         if (!options.gas) gas = 100_000
@@ -249,7 +245,7 @@ export class EthersPlugin extends SolidoProvider
 
     callMethod(name: string, args: any[]): any {
         let addr;
-        addr = this.contractImport.address[this.network];
+        addr = this.bindContract.address;
         const fn: ethers.ContractFunction = this.instance.functions[name];
 
         return fn(...args);

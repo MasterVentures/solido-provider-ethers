@@ -1,7 +1,7 @@
 {
-  "name": "solido-provider-ethers",
-  "version": "2.0.1",
-  "description": "Solido Ethers provider",
+  "name": "cemento-provider-ethers",
+  "version": "0.0.1",
+  "description": "Cemento Ethers provider",
   "main": "lib/index.js",
   "typings": "lib/index.d.ts",
   "directories": {
@@ -12,19 +12,19 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/molekilla/solido-provider-ethers.git"
+    "url": "git+https://github.com/MasterVentures/solido-provider-ethers.git"
   },
   "author": "",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/molekilla/solido-provider-ethers/issues"
+    "url": "https://github.com/MasterVentures/solido-provider-ethers/issues"
   },
-  "homepage": "https://github.com/molekilla/solido-provider-ethers#readme",
+  "homepage": "https://github.com/MasterVentures/solido-provider-ethers#readme",
   "devDependencies": {
-    "@decent-bet/solido": "^1.1.4",
     "@types/jasmine": "^3.3.12",
     "@types/node": "^11.12.0",
     "@typescript-eslint/eslint-plugin": "^1.5.0",
+    "cemento-paid": "^1.1.3",
     "eslint": "^5.15.3",
     "jasmine": "^3.4.0",
     "jasmine-ts": "^0.3.0",
@@ -38,6 +38,6 @@
     "xdvplatform-wallet": "^3.0.4"
   },
   "peerDependencies": {
-    "@decent-bet/solido": "^1.1.2"
+    "cemento-paid": "^1.5.0"
   }
 }

@@ -1,10 +1,10 @@
 import { ethers } from 'ethers';
-import { SolidoSigner } from '@decent-bet/solido';
+import { CementoSigner } from 'cemento-paid';
 import { Wallet } from 'xdvplatform-wallet';
 
 
 
-export class EthersSigner implements SolidoSigner {
+export class EthersSigner implements CementoSigner {
     accepted: any;
     constructor(
         private provider: ethers.providers.Provider,

@@ -1,6 +1,6 @@
-import { SolidoTopic } from '@decent-bet/solido';
+import { CementoTopic } from 'cemento-paid';
 
-export class EthersSolidoTopic  implements SolidoTopic  {
+export class EthersCementoTopic  implements CementoTopic  {
     private next = [];
     constructor() {}
 
